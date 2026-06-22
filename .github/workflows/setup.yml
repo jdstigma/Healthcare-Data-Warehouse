@@ -1,0 +1,96 @@
+name: Initial Setup
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "schema/**"
+      - "scripts/**"
+      - "requirements.txt"
+      - ".github/workflows/setup.yml"
+  workflow_dispatch:
+    inputs:
+      synthea_size:
+        description: "Synthea sample size"
+        required: false
+        default: "small"
+        type: choice
+        options:
+          - small
+          - large
+
+env:
+  PGUSER: postgres
+  PGPASSWORD: postgres
+  PGDATABASE: healthcare
+  PGHOST: localhost
+  PGPORT: 5432
+
+jobs:
+  setup:
+    name: Setup Healthcare Data Warehouse
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: healthcare
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Create schema
+        run: |
+          psql -f schema/01_create_schema.sql
+          psql -f schema/02_create_tables.sql
+          psql -f schema/03_indexes.sql
+
+      - name: Download Synthea data
+        run: |
+          SIZE="${{ github.event.inputs.synthea_size || 'small' }}"
+          python scripts/download_synthea.py --size "$SIZE"
+
+      - name: Load data into PostgreSQL
+        run: python scripts/load_data.py
+
+      - name: Validate row counts
+        run: |
+          psql -d healthcare <<'SQL'
+          SET search_path TO synthea;
+          SELECT
+            'patients'     AS tbl, COUNT(*) AS rows FROM patients
+          UNION ALL SELECT 'encounters',   COUNT(*) FROM encounters
+          UNION ALL SELECT 'conditions',   COUNT(*) FROM conditions
+          UNION ALL SELECT 'medications',  COUNT(*) FROM medications
+          UNION ALL SELECT 'procedures',   COUNT(*) FROM procedures
+          UNION ALL SELECT 'observations', COUNT(*) FROM observations
+          ORDER BY 1;
+          SQL
+
+      - name: Smoke-test analysis queries
+        run: |
+          psql -d healthcare -f sql/analysis/01_patient_demographics.sql  > /dev/null
+          psql -d healthcare -f sql/analysis/02_encounter_volume.sql       > /dev/null
+          psql -d healthcare -f sql/analysis/03_top_conditions.sql         > /dev/null
+          psql -d healthcare -f sql/analysis/04_medication_utilization.sql > /dev/null
+          echo "All analysis queries executed successfully."
