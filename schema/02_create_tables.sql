@@ -221,7 +221,7 @@ CREATE TABLE IF NOT EXISTS devices (
 );
 
 CREATE TABLE IF NOT EXISTS imaging_studies (
-    id                  UUID PRIMARY KEY,
+    id                  UUID NOT NULL,        -- study ID; repeats across instances
     date_time           TIMESTAMPTZ NOT NULL,
     patient             UUID NOT NULL REFERENCES patients(id),
     encounter           UUID REFERENCES encounters(id),
@@ -230,7 +230,7 @@ CREATE TABLE IF NOT EXISTS imaging_studies (
     bodysite_description TEXT,
     modality_code       TEXT,
     modality_description TEXT,
-    instance_uid        TEXT,
+    instance_uid        TEXT PRIMARY KEY,     -- unique per image instance
     sop_code            TEXT,
     sop_description     TEXT,
     procedure_code      TEXT
