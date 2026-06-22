@@ -35,7 +35,11 @@ def get_conn():
 
 
 def export_mart(conn, mart: str) -> None:
-    df = pd.read_sql(f"SELECT * FROM marts.{mart}", conn)
+    with conn.cursor() as cur:
+        cur.execute(f"SELECT * FROM marts.{mart}")
+        rows = cur.fetchall()
+        cols = [desc[0] for desc in cur.description]
+    df = pd.DataFrame(rows, columns=cols)
     out = EXPORT_DIR / f"{mart}.csv"
     df.to_csv(out, index=False)
     print(f"  {mart:<40}  {len(df):>8,} rows  →  {out}")
