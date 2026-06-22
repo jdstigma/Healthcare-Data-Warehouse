@@ -81,6 +81,20 @@ def get_conn():
     )
 
 
+def table_columns(conn, table: str) -> set[str]:
+    """Return the set of column names defined in the DB for this table."""
+    with conn.cursor() as cur:
+        cur.execute(
+            """
+            SELECT column_name
+            FROM information_schema.columns
+            WHERE table_schema = 'synthea' AND table_name = %s
+            """,
+            (table,),
+        )
+        return {row[0] for row in cur.fetchall()}
+
+
 def copy_df(conn, df: pd.DataFrame, table: str) -> int:
     """Fast bulk load using COPY FROM STDIN."""
     buf = StringIO()
@@ -109,6 +123,13 @@ def load_table(conn, table: str) -> None:
     renames = {k.lower(): v for k, v in COLUMN_RENAMES.get(table, {}).items()}
     if renames:
         df.rename(columns=renames, inplace=True)
+
+    # Drop CSV columns that don't exist in the schema so COPY never errors
+    # on extra fields Synthea adds between versions.
+    known = table_columns(conn, table)
+    extra = [c for c in df.columns if c not in known]
+    if extra:
+        df.drop(columns=extra, inplace=True)
 
     # Replace empty strings with None so Postgres sees NULL
     df.replace("", None, inplace=True)
