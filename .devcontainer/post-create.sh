@@ -3,6 +3,7 @@ set -e
 
 echo "==> Installing Python dependencies..."
 pip install -q -r requirements.txt
+pip install -q dbt-postgres
 
 echo "==> Waiting for PostgreSQL to be ready..."
 until pg_isready -U postgres -h localhost; do sleep 1; done
@@ -15,7 +16,11 @@ psql -U postgres -h localhost -d healthcare -f schema/01_create_schema.sql
 psql -U postgres -h localhost -d healthcare -f schema/02_create_tables.sql
 psql -U postgres -h localhost -d healthcare -f schema/03_indexes.sql
 
+echo "==> Installing dbt packages..."
+cd dbt/healthcare && dbt deps && cd ../..
+
 echo ""
 echo "Setup complete."
-echo "Run:  python scripts/download_synthea.py  to fetch sample data"
-echo "Then: python scripts/load_data.py          to load into PostgreSQL"
+echo "1. python scripts/download_synthea.py --size large"
+echo "2. python scripts/load_data.py"
+echo "3. cd dbt/healthcare && dbt run && dbt test"

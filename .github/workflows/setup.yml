@@ -57,7 +57,9 @@ jobs:
           cache: pip
 
       - name: Install dependencies
-        run: pip install -r requirements.txt
+        run: |
+          pip install -r requirements.txt
+          pip install dbt-postgres
 
       - name: Create schema
         run: |
@@ -94,3 +96,21 @@ jobs:
           psql -d healthcare -f sql/analysis/03_top_conditions.sql         > /dev/null
           psql -d healthcare -f sql/analysis/04_medication_utilization.sql > /dev/null
           echo "All analysis queries executed successfully."
+
+      - name: dbt deps
+        working-directory: dbt/healthcare
+        env:
+          DBT_PROFILES_DIR: ${{ github.workspace }}/dbt/healthcare
+        run: dbt deps
+
+      - name: dbt run
+        working-directory: dbt/healthcare
+        env:
+          DBT_PROFILES_DIR: ${{ github.workspace }}/dbt/healthcare
+        run: dbt run
+
+      - name: dbt test
+        working-directory: dbt/healthcare
+        env:
+          DBT_PROFILES_DIR: ${{ github.workspace }}/dbt/healthcare
+        run: dbt test

@@ -1,0 +1,25 @@
+version: 2
+
+sources:
+  - name: synthea
+    schema: synthea
+    description: Raw Synthea synthetic EHR data loaded by scripts/load_data.py
+    tables:
+      - name: patients
+      - name: encounters
+      - name: conditions
+      - name: medications
+      - name: procedures
+      - name: observations
+      - name: immunizations
+      - name: allergies
+      - name: careplans
+      - name: devices
+      - name: imaging_studies
+      - name: organizations
+      - name: providers
+      - name: payers
+      - name: payer_transitions
+      - name: claims
+      - name: claims_transactions
+      - name: supplies
