@@ -15,10 +15,10 @@ CREATE TABLE IF NOT EXISTS organizations (
     address             TEXT,
     city                TEXT,
     state               CHAR(2),
-    zip                 VARCHAR(10),
+    zip                 TEXT,
     lat                 NUMERIC(10,6),
     lon                 NUMERIC(10,6),
-    phone               VARCHAR(20),
+    phone               TEXT,
     revenue             NUMERIC(15,2),
     utilization         INT
 );
@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS providers (
     address             TEXT,
     city                TEXT,
     state               CHAR(2),
-    zip                 VARCHAR(10),
+    zip                 TEXT,
     lat                 NUMERIC(10,6),
     lon                 NUMERIC(10,6),
     utilization         INT
@@ -44,8 +44,8 @@ CREATE TABLE IF NOT EXISTS payers (
     address             TEXT,
     city                TEXT,
     state_headquartered CHAR(2),
-    zip                 VARCHAR(10),
-    phone               VARCHAR(20),
+    zip                 TEXT,
+    phone               TEXT,
     amount_covered      NUMERIC(15,2),
     amount_uncovered    NUMERIC(15,2),
     revenue             NUMERIC(15,2),
@@ -70,13 +70,13 @@ CREATE TABLE IF NOT EXISTS patients (
     id                  UUID PRIMARY KEY,
     birthdate           DATE NOT NULL,
     deathdate           DATE,
-    ssn                 VARCHAR(15),
-    drivers             VARCHAR(30),
-    passport            VARCHAR(20),
-    prefix              VARCHAR(10),
+    ssn                 TEXT,
+    drivers             TEXT,
+    passport            TEXT,
+    prefix              TEXT,
     first               TEXT,
     last                TEXT,
-    suffix              VARCHAR(10),
+    suffix              TEXT,
     maiden              TEXT,
     marital             CHAR(1),
     race                TEXT,
@@ -87,8 +87,8 @@ CREATE TABLE IF NOT EXISTS patients (
     city                TEXT,
     state               CHAR(2),
     county              TEXT,
-    fips                VARCHAR(10),
-    zip                 VARCHAR(10),
+    fips                TEXT,
+    zip                 TEXT,
     lat                 NUMERIC(10,6),
     lon                 NUMERIC(10,6),
     healthcare_expenses NUMERIC(15,2),
@@ -109,12 +109,12 @@ CREATE TABLE IF NOT EXISTS encounters (
     provider            UUID REFERENCES providers(id),
     payer               UUID REFERENCES payers(id),
     encounterclass      TEXT,
-    code                VARCHAR(20),
+    code                TEXT,
     description         TEXT,
     base_encounter_cost NUMERIC(10,2),
     total_claim_cost    NUMERIC(10,2),
     payer_coverage      NUMERIC(10,2),
-    reasoncode          VARCHAR(20),
+    reasoncode          TEXT,
     reasondescription   TEXT
 );
 
@@ -127,7 +127,7 @@ CREATE TABLE IF NOT EXISTS conditions (
     stop_time           DATE,
     patient             UUID NOT NULL REFERENCES patients(id),
     encounter           UUID REFERENCES encounters(id),
-    code                VARCHAR(20),
+    code                TEXT,
     description         TEXT
 );
 
@@ -137,13 +137,13 @@ CREATE TABLE IF NOT EXISTS medications (
     patient             UUID NOT NULL REFERENCES patients(id),
     payer               UUID REFERENCES payers(id),
     encounter           UUID REFERENCES encounters(id),
-    code                VARCHAR(20),
+    code                TEXT,
     description         TEXT,
     base_cost           NUMERIC(10,2),
     payer_coverage      NUMERIC(10,2),
     dispenses           INT,
     totalcost           NUMERIC(10,2),
-    reasoncode          VARCHAR(20),
+    reasoncode          TEXT,
     reasondescription   TEXT
 );
 
@@ -152,10 +152,10 @@ CREATE TABLE IF NOT EXISTS procedures (
     stop_time           TIMESTAMPTZ,
     patient             UUID NOT NULL REFERENCES patients(id),
     encounter           UUID REFERENCES encounters(id),
-    code                VARCHAR(20),
+    code                TEXT,
     description         TEXT,
     base_cost           NUMERIC(10,2),
-    reasoncode          VARCHAR(20),
+    reasoncode          TEXT,
     reasondescription   TEXT
 );
 
@@ -164,7 +164,7 @@ CREATE TABLE IF NOT EXISTS observations (
     patient             UUID NOT NULL REFERENCES patients(id),
     encounter           UUID REFERENCES encounters(id),
     category            TEXT,
-    code                VARCHAR(30),
+    code                TEXT,
     description         TEXT,
     value               TEXT,
     units               TEXT,
@@ -185,15 +185,15 @@ CREATE TABLE IF NOT EXISTS allergies (
     stop_time           DATE,
     patient             UUID NOT NULL REFERENCES patients(id),
     encounter           UUID REFERENCES encounters(id),
-    code                VARCHAR(20),
+    code                TEXT,
     system              TEXT,
     description         TEXT,
     type                TEXT,
     category            TEXT,
-    reaction1           VARCHAR(20),
+    reaction1           TEXT,
     description1        TEXT,
     severity1           TEXT,
-    reaction2           VARCHAR(20),
+    reaction2           TEXT,
     description2        TEXT,
     severity2           TEXT
 );
@@ -204,9 +204,9 @@ CREATE TABLE IF NOT EXISTS careplans (
     stop_time           DATE,
     patient             UUID NOT NULL REFERENCES patients(id),
     encounter           UUID REFERENCES encounters(id),
-    code                VARCHAR(20),
+    code                TEXT,
     description         TEXT,
-    reasoncode          VARCHAR(20),
+    reasoncode          TEXT,
     reasondescription   TEXT
 );
 
@@ -215,7 +215,7 @@ CREATE TABLE IF NOT EXISTS devices (
     stop_time           TIMESTAMPTZ,
     patient             UUID NOT NULL REFERENCES patients(id),
     encounter           UUID REFERENCES encounters(id),
-    code                VARCHAR(20),
+    code                TEXT,
     description         TEXT,
     udi                 TEXT
 );
@@ -226,14 +226,14 @@ CREATE TABLE IF NOT EXISTS imaging_studies (
     patient             UUID NOT NULL REFERENCES patients(id),
     encounter           UUID REFERENCES encounters(id),
     series_uid          TEXT,
-    bodysite_code       VARCHAR(20),
+    bodysite_code       TEXT,
     bodysite_description TEXT,
-    modality_code       VARCHAR(10),
+    modality_code       TEXT,
     modality_description TEXT,
     instance_uid        TEXT,
-    sop_code            VARCHAR(50),
+    sop_code            TEXT,
     sop_description     TEXT,
-    procedure_code      VARCHAR(20)
+    procedure_code      TEXT
 );
 
 -- ------------------------------------------------------------
@@ -259,14 +259,14 @@ CREATE TABLE IF NOT EXISTS claims (
     secondary_patient_insurance_id UUID,
     department_id       INT,
     patient_department_id INT,
-    diagnosis1          VARCHAR(20),
-    diagnosis2          VARCHAR(20),
-    diagnosis3          VARCHAR(20),
-    diagnosis4          VARCHAR(20),
-    diagnosis5          VARCHAR(20),
-    diagnosis6          VARCHAR(20),
-    diagnosis7          VARCHAR(20),
-    diagnosis8          VARCHAR(20),
+    diagnosis1          TEXT,
+    diagnosis2          TEXT,
+    diagnosis3          TEXT,
+    diagnosis4          TEXT,
+    diagnosis5          TEXT,
+    diagnosis6          TEXT,
+    diagnosis7          TEXT,
+    diagnosis8          TEXT,
     referring_provider_id UUID,
     appointment_id      UUID,
     current_illness_date DATE,
@@ -296,7 +296,7 @@ CREATE TABLE IF NOT EXISTS claims_transactions (
     from_date           DATE,
     to_date             DATE,
     place_of_service    TEXT,
-    procedure_code      VARCHAR(20),
+    procedure_code      TEXT,
     modifier1           TEXT,
     modifier2           TEXT,
     diagnosis_ref1      INT,
@@ -325,7 +325,7 @@ CREATE TABLE IF NOT EXISTS supplies (
     date_time           DATE NOT NULL,
     patient             UUID NOT NULL REFERENCES patients(id),
     encounter           UUID REFERENCES encounters(id),
-    code                VARCHAR(20),
+    code                TEXT,
     description         TEXT,
     quantity            INT
 );
