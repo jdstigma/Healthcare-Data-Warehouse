@@ -3,7 +3,7 @@ Download Synthea sample CSV data.
 
 Sizes available:
   small  ~  1 000 patients  (fast, good for dev)
-  large  ~ 10 000 patients  (good for dashboards)
+  large  ~ 10 000 patients  (COVID-19 dataset, good for dashboards)
 
 Usage:
   python scripts/download_synthea.py --size large
@@ -20,12 +20,12 @@ DATA_DIR = Path("data/raw")
 
 SYNTHEA_RELEASES = {
     "small": (
-        "https://synthetichealth.github.io/synthea-sample-data/downloads/latest/"
-        "synthea_sample_data_csv_latest.zip"
+        "https://raw.githubusercontent.com/synthetichealth/synthea-sample-data/"
+        "main/downloads/latest/synthea_sample_data_csv_latest.zip"
     ),
     "large": (
-        "https://synthetichealth.github.io/synthea-sample-data/downloads/10k_sample/"
-        "synthea_10k_sample_data_csv_latest.zip"
+        "https://raw.githubusercontent.com/synthetichealth/synthea-sample-data/"
+        "main/downloads/10k_synthea_covid19_csv.zip"
     ),
 }
 
