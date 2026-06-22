@@ -1,0 +1,15 @@
+# profiles.yml is read from ~/.dbt/ in production.
+# This copy lives in the repo for Codespaces convenience — dbt is
+# pointed at it via DBT_PROFILES_DIR in the devcontainer env.
+healthcare:
+  target: dev
+  outputs:
+    dev:
+      type: postgres
+      host: "{{ env_var('PGHOST', 'localhost') }}"
+      port: "{{ env_var('PGPORT', '5432') | int }}"
+      dbname: "{{ env_var('PGDATABASE', 'healthcare') }}"
+      user: "{{ env_var('PGUSER', 'postgres') }}"
+      password: "{{ env_var('PGPASSWORD', 'postgres') }}"
+      schema: dbt_dev
+      threads: 4

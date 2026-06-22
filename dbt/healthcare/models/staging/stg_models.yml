@@ -1,0 +1,44 @@
+version: 2
+
+models:
+  - name: stg_patients
+    description: Cleaned patient records with derived age and mortality fields
+    columns:
+      - name: patient_id
+        tests: [unique, not_null]
+      - name: gender
+        tests: [not_null]
+      - name: birthdate
+        tests: [not_null]
+
+  - name: stg_encounters
+    description: Cleaned encounter records with derived cost and duration fields
+    columns:
+      - name: encounter_id
+        tests: [unique, not_null]
+      - name: patient_id
+        tests: [not_null]
+
+  - name: stg_conditions
+    description: Patient conditions with active/resolved status
+    columns:
+      - name: patient_id
+        tests: [not_null]
+
+  - name: stg_medications
+    description: Medication prescriptions with cost and coverage breakdowns
+    columns:
+      - name: patient_id
+        tests: [not_null]
+
+  - name: stg_procedures
+    description: Clinical procedures performed during encounters
+    columns:
+      - name: patient_id
+        tests: [not_null]
+
+  - name: stg_observations
+    description: Vital signs and lab results with numeric cast for aggregation
+    columns:
+      - name: patient_id
+        tests: [not_null]

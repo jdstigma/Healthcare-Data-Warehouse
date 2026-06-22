@@ -15,7 +15,8 @@
     "PGPASSWORD": "postgres",
     "PGDATABASE": "healthcare",
     "PGHOST": "localhost",
-    "PGPORT": "5432"
+    "PGPORT": "5432",
+    "DBT_PROFILES_DIR": "/workspaces/Healthcare-Data-Warehouse/dbt/healthcare"
   },
   "customizations": {
     "vscode": {
