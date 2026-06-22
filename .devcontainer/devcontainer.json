@@ -1,0 +1,44 @@
+{
+  "name": "Healthcare Data Warehouse",
+  "image": "mcr.microsoft.com/devcontainers/python:3.11-bullseye",
+  "features": {
+    "ghcr.io/devcontainers/features/postgres:1": {
+      "version": "15"
+    },
+    "ghcr.io/devcontainers/features/java:1": {
+      "version": "17"
+    }
+  },
+  "postCreateCommand": "bash .devcontainer/post-create.sh",
+  "containerEnv": {
+    "PGUSER": "postgres",
+    "PGPASSWORD": "postgres",
+    "PGDATABASE": "healthcare",
+    "PGHOST": "localhost",
+    "PGPORT": "5432"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "mtxr.sqltools",
+        "mtxr.sqltools-driver-pg",
+        "ms-ossdata.vscode-postgresql"
+      ],
+      "settings": {
+        "sqltools.connections": [
+          {
+            "name": "Healthcare DB",
+            "driver": "PostgreSQL",
+            "server": "localhost",
+            "port": 5432,
+            "database": "healthcare",
+            "username": "postgres",
+            "password": "postgres"
+          }
+        ]
+      }
+    }
+  }
+}

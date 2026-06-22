@@ -1,0 +1,8 @@
+data/
+*.twb
+*.twbx
+*.hyper
+__pycache__/
+*.pyc
+.env
+.DS_Store
