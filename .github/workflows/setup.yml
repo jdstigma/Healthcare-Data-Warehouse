@@ -114,3 +114,13 @@ jobs:
         env:
           DBT_PROFILES_DIR: ${{ github.workspace }}/dbt/healthcare
         run: dbt test
+
+      - name: Export mart CSVs
+        run: python scripts/export_marts.py
+
+      - name: Upload Tableau exports
+        uses: actions/upload-artifact@v4
+        with:
+          name: tableau-exports
+          path: exports/*.csv
+          retention-days: 30
