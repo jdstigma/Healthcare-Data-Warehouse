@@ -14,7 +14,10 @@ echo "deb [signed-by=/usr/share/keyrings/postgresql.gpg] https://apt.postgresql.
 sudo apt-get update -qq
 sudo apt-get install -y -qq postgresql-15
 sudo service postgresql start
-sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'postgres';"
+# `sudo -u postgres` prompts for a password in this sudoers config (NOPASSWD
+# only covers the root target); `sudo su postgres` avoids that since root
+# can switch to any user without a password.
+sudo su postgres -c "psql -c \"ALTER USER postgres PASSWORD 'postgres';\""
 
 echo "==> Installing Python dependencies..."
 pip install -q -r requirements.txt
