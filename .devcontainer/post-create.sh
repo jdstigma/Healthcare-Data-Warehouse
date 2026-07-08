@@ -2,6 +2,9 @@
 set -e
 
 echo "==> Installing PostgreSQL 15..."
+# Base image ships a stale dl.yarnpkg.com apt source with no valid signing
+# key, which breaks `apt-get update` outright. Not needed for this project.
+sudo grep -rl "yarnpkg" /etc/apt/sources.list.d/ 2>/dev/null | xargs -r sudo rm -f
 sudo apt-get update -qq
 sudo apt-get install -y -qq wget gnupg2 lsb-release ca-certificates
 wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc \
