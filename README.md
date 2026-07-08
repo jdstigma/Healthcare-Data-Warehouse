@@ -9,7 +9,7 @@ PostgreSQL data warehouse built on [Synthea](https://github.com/synthetichealth/
 | Data generation | Synthea (synthetic EHR) |
 | Database | PostgreSQL 15 (`synthea` schema) |
 | Dev environment | GitHub Codespaces + devcontainer |
-| Visualization | Tableau Public |
+| Visualization | Tableau Public, Power BI |
 
 ## Schema — 18 tables
 
@@ -59,3 +59,45 @@ Starter queries live in `sql/analysis/`:
 1. Export a view to CSV from psql or copy query results.
 2. In Tableau Public → **Connect → Text file** → select the CSV.
 3. For a live connection, use **PostgreSQL** connector (requires Tableau Desktop; Tableau Public supports extract only).
+
+## Connecting Power BI
+
+Postgres only runs inside the Codespace container, so Power BI Desktop (on your
+local machine) can't reach it directly — same constraint as Tableau Public.
+The pipeline is CSV export, refreshed via a notebook:
+
+1. In the Codespace: `python scripts/run_pipeline.py` (add `--size large`
+   for the 10k-patient sample, or `--skip-data` to skip the download/load
+   and just rebuild marts + notebook from what's already loaded).
+   This downloads Synthea data, loads it, runs `dbt run` + `dbt test`
+   (rebuilding all marts, including the two anomaly marts below), then
+   executes `notebooks/anomaly_detection.ipynb` via papermill — which
+   charts the flagged anomalies and writes CSVs to `exports/`. The
+   executed notebook (with output charts) is saved to
+   `notebooks/executed/`.
+2. Download the CSVs from `exports/`.
+3. In Power BI Desktop: **Get Data → Text/CSV** → select each mart CSV.
+4. To refresh after new data: repeat steps 1–3 and hit **Refresh** in Power BI.
+
+You can also open `notebooks/anomaly_detection.ipynb` directly in Jupyter for
+interactive exploration instead of running the full pipeline script.
+
+### Anomaly detection
+
+Two marts are built specifically for anomaly hunting:
+
+- `mart_encounter_cost_anomalies` — every encounter compared against its
+  peer group (same `encounter_class` + `encounter_type`) via z-score.
+  `is_cost_anomaly` flags encounters ≥3 standard deviations from the peer
+  mean (peer groups under 10 encounters are excluded). Use this as a
+  drill-down table filtered to `is_cost_anomaly = true`.
+- `mart_monthly_encounter_anomalies` — monthly encounter volume per
+  `encounter_class`, compared against a trailing 6-month rolling average.
+  `is_volume_anomaly` flags months ≥2 standard deviations from the rolling
+  mean.
+
+`notebooks/anomaly_detection.ipynb` visualizes both (scatter of cost z-scores,
+monthly volume charts with flagged points) before exporting. For a second,
+independent check in Power BI itself, plot `encounter_count` over
+`encounter_month` in a line chart and add the built-in **Anomaly Detection**
+(right-click the line → Analytics pane).

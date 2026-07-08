@@ -1,10 +1,12 @@
 """
-Export dbt mart tables to CSV for Tableau Public.
+Export dbt mart tables to CSV for Tableau Public and Power BI.
 
-Usage (from repo root in Codespaces):
+Usage (from repo root in Codespaces, after `dbt run`):
   python scripts/export_marts.py
 
-Outputs to exports/  (git-ignored).
+Outputs to exports/  (git-ignored). In Power BI Desktop: Get Data ->
+Text/CSV -> select a file. Re-run this script + refresh in Power BI
+to pick up new data.
 """
 
 import os
@@ -21,6 +23,8 @@ MARTS = [
     "mart_encounter_trends",
     "mart_condition_prevalence",
     "mart_medication_utilization",
+    "mart_encounter_cost_anomalies",
+    "mart_monthly_encounter_anomalies",
 ]
 
 
@@ -52,7 +56,7 @@ def main():
     for mart in MARTS:
         export_mart(conn, mart)
     conn.close()
-    print("\nDone. Upload these CSVs to Tableau Public.")
+    print("\nDone. Upload these CSVs to Tableau Public, or Get Data -> Text/CSV in Power BI.")
 
 
 if __name__ == "__main__":

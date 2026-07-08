@@ -1,5 +1,6 @@
 data/
 exports/
+notebooks/executed/
 *.twb
 *.twbx
 *.hyper

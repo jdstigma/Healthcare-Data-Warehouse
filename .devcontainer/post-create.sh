@@ -21,6 +21,5 @@ cd dbt/healthcare && dbt deps && cd ../..
 
 echo ""
 echo "Setup complete."
-echo "1. python scripts/download_synthea.py --size large"
-echo "2. python scripts/load_data.py"
-echo "3. cd dbt/healthcare && dbt run && dbt test"
+echo "Run the full pipeline (download, load, dbt run/test, anomaly notebook, CSV export):"
+echo "  python scripts/run_pipeline.py --size large"
