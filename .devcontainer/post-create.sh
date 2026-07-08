@@ -16,8 +16,11 @@ sudo apt-get install -y -qq postgresql-15
 sudo service postgresql start
 # `sudo -u postgres` prompts for a password in this sudoers config (NOPASSWD
 # only covers the root target); `sudo su postgres` avoids that since root
-# can switch to any user without a password.
-sudo su postgres -c "psql -c \"ALTER USER postgres PASSWORD 'postgres';\""
+# can switch to any user without a password. Connect via the Unix socket
+# (-h /var/run/postgresql), not the container's PGHOST=localhost — that
+# would force TCP + password auth, which can't work before a password
+# has ever been set.
+sudo su postgres -c "psql -h /var/run/postgresql -c \"ALTER USER postgres PASSWORD 'postgres';\""
 
 echo "==> Installing Python dependencies..."
 pip install -q -r requirements.txt
