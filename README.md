@@ -64,7 +64,12 @@ Starter queries live in `sql/analysis/`:
 
 Postgres only runs inside the Codespace container, so Power BI Desktop (on your
 local machine) can't reach it directly — same constraint as Tableau Public.
-The pipeline is CSV export, refreshed via a notebook:
+The pipeline is CSV export, refreshed via a notebook. There's no automatic
+refresh path here: Power BI Desktop has no built-in scheduler, and scheduled
+refresh from the cloud requires publishing to Power BI Service, which needs a
+Pro/PPU license or workspace access. Without that, every refresh is a manual
+"run the pipeline, then click Refresh" cycle — this setup just keeps that
+cycle to as few steps as possible:
 
 1. In the Codespace: `python scripts/run_pipeline.py` (add `--size large`
    for the 10k-patient sample, or `--skip-data` to skip the download/load
@@ -75,9 +80,16 @@ The pipeline is CSV export, refreshed via a notebook:
    charts the flagged anomalies and writes CSVs to `exports/`. The
    executed notebook (with output charts) is saved to
    `notebooks/executed/`.
-2. Download the CSVs from `exports/`.
-3. In Power BI Desktop: **Get Data → Text/CSV** → select each mart CSV.
-4. To refresh after new data: repeat steps 1–3 and hit **Refresh** in Power BI.
+2. Download the CSVs from `exports/` in the Codespace, and save them into
+   this repo's local `exports/` folder — e.g.
+   `C:\Users\<you>\OneDrive\Desktop\Projects\Healthcare-Data-Warehouse\exports\`.
+   (This folder is git-ignored, so it won't get committed.)
+3. In Power BI Desktop: **Get Data → Text/CSV** → browse to that local
+   `exports/` path → select each mart CSV → Load — once, the first time.
+4. To refresh after new data: repeat steps 1–2, then open the `.pbix` in
+   Power BI Desktop and hit **Refresh** (Home ribbon). Because the data
+   source is already wired to the `exports/` path, Refresh just re-reads
+   whatever CSVs are currently there — no need to redo Get Data.
 
 You can also open `notebooks/anomaly_detection.ipynb` directly in Jupyter for
 interactive exploration instead of running the full pipeline script.
