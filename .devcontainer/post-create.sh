@@ -19,8 +19,9 @@ sudo service postgresql start
 # can switch to any user without a password. Connect via the Unix socket
 # (-h /var/run/postgresql), not the container's PGHOST=localhost — that
 # would force TCP + password auth, which can't work before a password
-# has ever been set.
-sudo su postgres -c "psql -h /var/run/postgresql -c \"ALTER USER postgres PASSWORD 'postgres';\""
+# has ever been set. Target -d postgres explicitly too: containerEnv sets
+# PGDATABASE=healthcare, which doesn't exist yet at this point.
+sudo su postgres -c "psql -h /var/run/postgresql -d postgres -c \"ALTER USER postgres PASSWORD 'postgres';\""
 
 echo "==> Installing Python dependencies..."
 pip install -q -r requirements.txt
@@ -30,7 +31,9 @@ echo "==> Waiting for PostgreSQL to be ready..."
 until pg_isready -U postgres -h localhost; do sleep 1; done
 
 echo "==> Creating healthcare database..."
-psql -U postgres -h localhost -c "CREATE DATABASE healthcare;" 2>/dev/null || echo "Database already exists."
+# -d postgres: PGDATABASE=healthcare doesn't exist yet, so an unqualified
+# connection here would fail before CREATE DATABASE ever runs.
+psql -U postgres -h localhost -d postgres -c "CREATE DATABASE healthcare;" 2>/dev/null || echo "Database already exists."
 
 echo "==> Running schema migrations..."
 psql -U postgres -h localhost -d healthcare -f schema/01_create_schema.sql
