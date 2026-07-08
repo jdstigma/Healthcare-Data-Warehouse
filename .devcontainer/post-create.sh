@@ -1,6 +1,18 @@
 #!/usr/bin/env bash
 set -e
 
+echo "==> Installing PostgreSQL 15..."
+sudo apt-get update -qq
+sudo apt-get install -y -qq wget gnupg2 lsb-release ca-certificates
+wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc \
+  | sudo gpg --dearmor -o /usr/share/keyrings/postgresql.gpg
+echo "deb [signed-by=/usr/share/keyrings/postgresql.gpg] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" \
+  | sudo tee /etc/apt/sources.list.d/pgdg.list > /dev/null
+sudo apt-get update -qq
+sudo apt-get install -y -qq postgresql-15
+sudo service postgresql start
+sudo -u postgres psql -c "ALTER USER postgres PASSWORD 'postgres';"
+
 echo "==> Installing Python dependencies..."
 pip install -q -r requirements.txt
 pip install -q dbt-postgres
