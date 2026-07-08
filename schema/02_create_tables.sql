@@ -148,7 +148,7 @@ CREATE TABLE IF NOT EXISTS medications (
 );
 
 CREATE TABLE IF NOT EXISTS procedures (
-    start_time          TIMESTAMPTZ NOT NULL,
+    start_time          TIMESTAMPTZ,
     stop_time           TIMESTAMPTZ,
     patient             UUID NOT NULL REFERENCES patients(id),
     encounter           UUID REFERENCES encounters(id),
